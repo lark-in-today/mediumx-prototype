@@ -4,9 +4,7 @@ const __config = {
   baseUrl: 'http://localhost:6006',
   seed: 'THzTNmjn3ULghj3vshk/XvjsEeNpFEfGKM1bgM8k2NE='
 }
-///
-///
-///
+
 /* store module */
 const __store = require('store');
 class Store {
@@ -14,16 +12,10 @@ class Store {
   static set(k, v) { return __store.set(k, v) }
 }
 
-const store = Store;
-///
-///
-///
+
 /* crypto module */
 const __nacl = require('tweetnacl');
-const {
-  encodeBase64,
-  decodeBase64
-} = require('tweetnacl-util');
+const { encodeBase64, decodeBase64 } = require('tweetnacl-util');
 class Ed25519 {
   static gen() {
     let seed = __nacl.randomBytes(nacl.sign.seedLength);
@@ -50,41 +42,39 @@ class Ed25519 {
   }
 }
 
-function genKey() {
-  let keypair = {};
-  if (!__config.debug) {
-    keypair = Ed25519.gen();
-  } else {
-    keypair = Ed25519.genFromSeed();
+class Crypto {
+  static genKey() {
+    let keypair = {};
+    if (!__config.debug) {
+      keypair = Ed25519.gen();
+    } else {
+      keypair = Ed25519.genFromSeed();
+    }
+    
+    let sk = encodeBase64(keypair.secretKey);
+    let pk = encodeBase64(keypair.publicKey);
+    let seed = encodeBase64(keypair.seed);
+
+    store.set('seed', seed);
+    store.set('public_key', pk);
+    store.set('secret_key', sk);
+
+    return pk;
   }
-  
-  let sk = encodeBase64(keypair.secretKey);
-  let pk = encodeBase64(keypair.publicKey);
-  let seed = encodeBase64(keypair.seed);
-
-  store.set('seed', seed);
-  store.set('public_key', pk);
-  store.set('secret_key', sk);
-
-  return pk;
 }
 
-const crypto = {
-  Ed25519,
-  encodeBase64, decodeBase64,
-  genKey
-}
-///
-///
-///
-/* modules */
+Crypto.__proto__.Ed25519 = Ed25519;
+Crypto.__proto__.encodeBase64 = encodeBase64;
+Crypto.__proto__.decodeBase64 = decodeBase64;
+
+
+/* ~~~.>~~~.>~~~.>~~~.>~~~.>~~~.>~~~.>~~~.>~~~.>~~~.>~~~.>~~~.>~~~.>~~~.> */
 const axios = require('axios');
 const baseUrl = __config.baseUrl;
 
-///
-///
-///
-/* client */
+const store = Store;
+const crypto = Crypto;
+
 function auth(res, url, params) {
   let method = res.config.method;
   if (res.data.msg.match(/WARNING_000/)) {

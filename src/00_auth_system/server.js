@@ -1,6 +1,3 @@
-///
-///
-///
 /* msg */
 class Messager {
   constructor() {
@@ -27,19 +24,10 @@ class Messager {
     this.warning = warning_code.map((e, i) => `${WARNING + i}: ${e}`);
   }
 }
-const msg = new Messager();
-///
-///
-///
+
 /* utils */
 const nacl = require('tweetnacl');
 const { decodeBase64, encodeBase64 } = require('tweetnacl-util');
-
-function bytes_to_hex(byteArray) {
-  return Array.from(byteArray, function(byte) {
-    return ('0' + (byte & 0xFF).toString(16)).slice(-2);
-  }).join('')
-}
 
 class Ed25519 {
   static verify(msg, sign, pk) {
@@ -49,17 +37,16 @@ class Ed25519 {
 
 const utils = {
   Ed25519,
-  bytes_to_hex,
   decodeBase64,
   encodeBase64
 }
-///
-///
-///~~~.>~~~.>~~~.>~~~.>~~~.>~~~.>~~~.>~~~.>~~~.>~~~.>~~~.>~~~.>~~~.>~~~.>
-/* modules */
+
+
+/* ~~~.>~~~.>~~~.>~~~.>~~~.>~~~.>~~~.>~~~.>~~~.>~~~.>~~~.>~~~.>~~~.>~~~.> */
 const crypto = require('crypto');
 const Redis = require('ioredis');
 const redis = new Redis();
+const msg = new Messager();
 /** auth
  * @pk: public key
  * @sign: signature
@@ -111,20 +98,20 @@ class Middleware {
 async function midware(ctx, next) {
   await Middleware.auth(ctx, next)
 }
-///
-///
-///
+
 /* server */
-const Koa = require('koa');
-const logger = require('koa-logger');
-let server = new Koa();
+;(function(){
+  const Koa = require('koa');
+  const logger = require('koa-logger');
+  let server = new Koa();
 
-console.log('server start at 6006...');
+  console.log('server start at 6006...');
 
-server
-  .use(midware)
-  .use(logger())
-  .use((ctx, next) => {
-    ctx.body = { msg: 'hello, world!' };
-  })
-  .listen(6006);
+  server
+    .use(midware)
+    .use(logger())
+    .use((ctx, next) => {
+      ctx.body = { msg: 'hello, world!' };
+    })
+    .listen(6006);
+})();
