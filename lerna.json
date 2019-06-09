@@ -1,0 +1,6 @@
+{
+  "packages": [
+    "src/00_auth_system"
+  ],
+  "version": "0.0.1"
+}
