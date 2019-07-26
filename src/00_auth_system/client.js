@@ -93,6 +93,7 @@ function auth(res, url, params) {
       crypto.decodeBase64(store.get('public_key')),
     );
 
+    console.log(res.config);
     return Requests[method](url, params);
   } else if(res.data.msg.match(/OK_000/)) {
     return Requests[method](url, params);
